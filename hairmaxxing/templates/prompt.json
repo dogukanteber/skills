@@ -1,0 +1,17 @@
+{
+  "photos": {
+    "front": {
+      "file": "photos/front.jpg",
+      "view": "It shows a front view of his face, looking straight at the camera."
+    },
+    "right": {
+      "file": "photos/right.jpg",
+      "view": "It shows a side profile of his head; his nose points to the RIGHT edge of the image and we see the side of his head with his ear."
+    },
+    "left": {
+      "file": "photos/left.jpg",
+      "view": "It shows a side profile of his head; his nose points to the LEFT edge of the image and we see the side of his head with his ear."
+    }
+  },
+  "keep": "his face and identity (eyes, nose, brows, ears, skin texture, skin tone, facial proportions, age), expression, head angle, his facial hair (EXACT DESCRIPTION FROM THE SPEC, or clean-shaven), his natural hair color and density, his natural hairline, CLOTHING AND ACCESSORIES, the lighting, camera quality, BACKGROUND"
+}
