@@ -6,6 +6,7 @@ Agent skills I use in Cursor and Claude. Each folder is a self-contained skill w
 | --- | --- | --- |
 | [hairmaxxing](hairmaxxing) | Cursor | Preview men's haircuts on your own photos, refine them with the agent, and take final images to your barber. |
 | [pantry](pantry) | Claude | Pantry tracker that keeps a rough inventory of your food and suggests recipes from what you have. Uses Claude's Notion connector as its database. |
+| [last-call](last-call) | Cursor | Moves junk promotional Gmail into a "Last Call" label, trashes it a week later, and learns from what you rescue. Runs daily as a Cursor Automation with Notion as its memory. |
 
 ## A confession
 
