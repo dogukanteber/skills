@@ -33,7 +33,7 @@ Not set yet. By default only promotional and marketing mail is cleared.
 
 ## Database: Last Call Ledger
 
-One row per Gmail thread the agent has moved, proposed, or found in the label.
+One row per Gmail thread the agent has moved or found in the label.
 
 ```sql
 CREATE TABLE (
@@ -41,7 +41,7 @@ CREATE TABLE (
   "Sender" RICH_TEXT,
   "Domain" RICH_TEXT,
   "Thread ID" RICH_TEXT,
-  "Status" SELECT('Proposed':gray, 'Waiting':yellow, 'Trashed':red, 'Rescued':green, 'Trashed by you':orange, 'Returned':blue, 'Rejected':default),
+  "Status" SELECT('Waiting':yellow, 'Trashed':red, 'Rescued':green, 'Trashed by you':orange, 'Returned':blue),
   "Source" SELECT('Agent':purple, 'You':blue),
   "Moved on" DATE,
   "Trashed on" DATE,
@@ -51,7 +51,7 @@ CREATE TABLE (
 ```
 
 - **Open** is the thread's Gmail `viewUrl`, so the user can jump to it from Notion.
-- **Status** meanings: `Proposed` (dry run), `Waiting` (in Last Call, timer running), `Trashed` (agent trashed it after 7 days), `Rescued` (user took it out), `Trashed by you` (user trashed it from the label), `Returned` (new mail arrived in the thread, so it went back to the inbox), `Rejected` (user declined it in the dry run).
+- **Status** meanings: `Waiting` (in Last Call, timer running), `Trashed` (agent trashed it after 7 days), `Rescued` (user took it out), `Trashed by you` (user trashed it from the label), `Returned` (new mail arrived in the thread, so it went back to the inbox).
 
 ## Database: Last Call Rules
 

@@ -55,7 +55,7 @@ Run these steps in order. Keep counts for the run log and the weekly report.
 
 ### 1. Load memory
 
-Fetch the Last Call page. Query Rules (all rows). Query Ledger rows with Status `Waiting` or `Proposed`. If Mode is `Paused`, log "paused" and stop.
+Fetch the Last Call page. Query Rules (all rows). Query Ledger rows with Status `Waiting`, plus the Thread IDs of all Ledger rows (step 5 skips those). If Mode is `Paused`, log "paused" and stop.
 
 ### 2. Read the user's replies
 
@@ -88,7 +88,7 @@ Base filter (always): `in:inbox -is:starred -is:important -from:me -has:userlabe
 Two scans, newest first:
 
 - **Recent window.** `<base> older_than:7d after:<Last run minus 8 days>`. On the first run, skip this; the backlog scan covers it.
-- **Backlog.** While Backlog cursor isn't `done`: `<base> before:<cursor>`. After the run, set the cursor to the date of the oldest thread you looked at. If the search returns nothing, set it to `done`.
+- **Backlog.** While Backlog cursor isn't `done`: `<base> before:<cursor>`. After the run, set the cursor to the day after the oldest thread you looked at (`before:` excludes its own date, so this re-checks a few threads rather than skipping any). If the search returns nothing, set it to `done`.
 
 Per run, classify at most 500 threads and move at most 150. Stop early when either cap is reached; the next run continues.
 
@@ -97,7 +97,7 @@ For each thread:
 1. Skip it if its Thread ID is already in the Ledger with any status. Rescued threads are never touched again.
 2. Skip it if the newest message in the thread is less than 7 days old, the thread has more than 5 messages, or any message is from the user.
 3. Classify it with [references/classify.md](references/classify.md) and the Rules database. Only a `Junk` verdict moves.
-4. In `Live` mode, move it into Last Call and add a Ledger row (Source `Agent`, Status `Waiting`). In `Dry run` mode, don't touch Gmail; add a Ledger row with Status `Proposed`.
+4. In `Live` mode, move it into Last Call and add a Ledger row (Source `Agent`, Status `Waiting`). In `Dry run` mode, don't touch Gmail or the Ledger; just collect it for the dry run report, and leave the Backlog cursor unchanged.
 
 Create Ledger rows in batches, not one call per row.
 
@@ -105,18 +105,18 @@ Also track **close calls**: senders that looked promotional but you kept (for ex
 
 ### 6. Report
 
-- **Dry run, not yet reported.** Send the dry run report (below). It goes to the inbox because it needs an answer.
+- **Dry run, not yet reported.** Send the dry run report (below). It goes to the inbox because it needs an answer. Once it's sent, later dry run runs only check for the reply (step 2) and skip steps 4 to 6.
 - **Live, and Last report is 7 or more days ago (or never).** Send the weekly report, then file it: `label_thread` with the Reports label ID and `unlabel_thread` with `INBOX`.
 
 Send to the user's own address with `send_message`, plain text (`body`, no Markdown). Add the thread ID to "Report threads" (keep the last 6) and update Last report.
 
 ### 7. Save
 
-Update Settings: Last run (today), Backlog cursor, and report fields. Add a one-line entry at the top of the Run log, like `2026-11-09: moved 34, trashed 12, rescued 1, added 2, learned 2` (keep the last 14). Delete Ledger rows with Status `Trashed`, `Returned` or `Rejected` that are older than 60 days. Keep `Rescued` rows.
+Update Settings: Last run (today), Backlog cursor, and report fields. Add a one-line entry at the top of the Run log, like `2026-11-09: moved 34, trashed 12, rescued 1, added 2, learned 2` (keep the last 14). Delete Ledger rows with Status `Trashed` or `Returned` that are older than 60 days. Keep `Rescued` rows.
 
 ## Approve the dry run
 
-Apply any corrections in the approval first ("go, but keep Uber and Strava" adds Keep rules and sets matching `Proposed` rows to `Rejected`). Then, for each remaining `Proposed` row, re-check that the thread is still in the inbox and still qualifies, move it into Last Call, and set Status `Waiting`, Moved on today. Set Mode to `Live`. If the approval came by email, file the dry run report thread under Reports and out of the inbox. Confirm in one line.
+Save any corrections in the approval first ("go, but keep Uber and Strava" adds `Keep` rules, Origin `You said`). Set Mode to `Live`, then do steps 5 and 7 right away, which moves what the dry run proposed minus the corrections. If the approval came by email, file the dry run report thread under Reports and out of the inbox. Confirm in one line with the number moved.
 
 ## Learning
 
