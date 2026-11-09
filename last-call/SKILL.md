@@ -34,9 +34,9 @@ Find the page with Notion search ("Last Call"), then fetch it to get the two dat
 
 ## Gmail tools
 
-Use the Gmail connector: `search_threads`, `get_thread`, `list_labels`, `create_label`, `label_thread`, `unlabel_thread`, `unlabel_message`, `trash_thread`, `send_message`. Use `THREAD_VIEW_MINIMAL` for searches and `MINIMAL` or `METADATA_ONLY` for `get_thread`. Searches return at most 50 threads per page; paginate with `pageToken`.
+Use the Gmail connector: `search_threads`, `get_thread`, `list_labels`, `create_label`, `label_thread`, `unlabel_thread`, `update_message_labels`, `unlabel_message`, `trash_thread`, `send_message`. Use `THREAD_VIEW_MINIMAL` for searches and `MINIMAL` or `METADATA_ONLY` for `get_thread`. Searches return at most 50 threads per page; paginate with `pageToken`.
 
-Moving a thread **into** Last Call: `label_thread` with the Last Call label ID first, then `unlabel_thread` with `INBOX`. Always in that order, so a failure never leaves mail archived without the label.
+Moving a thread **into** Last Call: `label_thread` with the Last Call label ID first, then `unlabel_thread` with `INBOX`. Always in that order, so a failure never leaves mail archived without the label. For a single-message thread, prefer one `update_message_labels` call on its message (add the Last Call label ID, remove `INBOX`); it's atomic and half the calls.
 
 Moving a thread **back** to the inbox: `label_thread` with `INBOX`, then `unlabel_thread` with the Last Call label ID.
 
@@ -90,7 +90,7 @@ Two scans, newest first:
 - **Recent window.** `<base> older_than:7d after:<Last run minus 8 days>`. On the first run, skip this; the backlog scan covers it.
 - **Backlog.** While Backlog cursor isn't `done`: `<base> before:<cursor>`. After the run, set the cursor to the day after the oldest thread you looked at (`before:` excludes its own date, so this re-checks a few threads rather than skipping any). If the search returns nothing, set it to `done`.
 
-Per run, classify at most 500 threads and move at most 150. Stop early when either cap is reached; the next run continues.
+Per run, classify at most 500 threads and move at most 150. Stop as soon as either cap is reached; the next run continues. When you stop early, the "oldest thread you looked at" is the last one you processed, not the oldest one the search returned, so unprocessed threads aren't skipped.
 
 For each thread:
 
